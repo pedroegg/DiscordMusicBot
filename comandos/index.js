@@ -1,3 +1,4 @@
 module.exports = {
-    Ping: require('./ping'),
+  Ping: require("./ping"),
+  Spotify: require("./spotify")
 };
