@@ -1,5 +1,7 @@
+require('dotenv').config();
+
 module.exports = {
-    name: ';;ping',
+    name: process.env.PREFIX + 'ping',
     description: 'Ping!',
     execute(msg, args) {
         msg.reply('pong');
