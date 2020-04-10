@@ -2,7 +2,7 @@ require('dotenv').config();
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
-const comandosBot = require('./comandos');
+const comandosBot = require('./commands');
 
 Object.keys(comandosBot).map(key => {
   bot.commands.set(comandosBot[key].name, comandosBot[key]);
@@ -13,7 +13,7 @@ const TOKEN_DISCORD = process.env.TOKEN_DISCORD;
 bot.login(TOKEN_DISCORD);
 
 bot.on('ready', () => {
-  console.log('Pronto!');
+  console.log('Ready!');
 });
 
 bot.on('message', msg => {
