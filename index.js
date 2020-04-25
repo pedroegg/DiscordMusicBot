@@ -23,28 +23,24 @@ bot.on("ready", () => {
 bot.on("message", (msg) => {
   const args = msg.content.split(/ +/);
   const comando = args.shift().toLowerCase();
+  var parts = null;
 
   if (!bot.commands.has(comando)) return;
-
   try {
-    try {
-      const url = new URL(args[0]);
+    const url = new URL(args[0]);
 
-      if (hosts[url.host] != "") {
-        let parts = {
-          host: url.host,
-          pathname: url.pathname,
-          searchParams: url.searchParams,
-          href: url.href,
-        };
-
-        bot.commands.get(comando).execute(msg, args, parts);
-      }
-    } catch (error) {
-      //It's not a url
-      bot.commands.get(comando).execute(msg, args, null);
+    if (hosts[url.host] != "") {
+      parts = {
+        host: url.host,
+        pathname: url.pathname,
+        searchParams: url.searchParams,
+        href: url.href,
+      };
     }
   } catch (error) {
+    //It's not a url
     console.error(error);
   }
+
+  bot.commands.get(comando).execute(msg, args, parts);
 });
