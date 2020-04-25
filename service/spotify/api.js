@@ -4,8 +4,10 @@
 //Reduzir também todos esses if e elses das funções de playlist para somente um.
 
 //Ou então fazer o getToken ser executado sempre que for usar a api, e então esse arquivo será deletado
+//Colocar o tipo de elementos das funções e seus tipos de retorno, para ficar "tipado"
 
 const Playlist = require("./playlist/playlist");
+const Album = require("./album/album");
 const SpotifyWebApi = require("spotify-web-api-node");
 var api = undefined;
 
@@ -13,11 +15,11 @@ function init(callback) {
   if (api == undefined || api == null) {
     console.log("GetToken");
     getApiToken(
-      function(obj) {
+      function (obj) {
         api = obj;
         callback();
       },
-      err => console.log(err)
+      (err) => console.log(err)
     );
   } else {
     callbackFail("Invalid API Token!");
@@ -40,14 +42,6 @@ function getPlaylistsUser(id, callbackOk, callbackFail) {
   }
 }
 
-function getPlaylistImage(id, callbackOk, callbackFail) {
-  if (api != undefined && api != null) {
-    Playlist.Image(api, id, callbackOk, callbackFail);
-  } else {
-    callbackFail("Invalid API Token!");
-  }
-}
-
 function getPlaylistTracks(id, callbackOk, callbackFail) {
   if (api != undefined && api != null) {
     Playlist.Tracks(api, id, callbackOk, callbackFail);
@@ -64,23 +58,55 @@ function getPlaylist(id, callbackOk, callbackFail) {
   }
 }
 
+function getAlbum(id, callbackOk, callbackFail) {
+  if (api != undefined && api != null) {
+    Album.Album(api, id, callbackOk, callbackFail);
+  } else {
+    callbackFail("Invalid API Token!");
+  }
+}
+
+function getAlbumTracks(id, callbackOk, callbackFail) {
+  if (api != undefined && api != null) {
+    Album.Tracks(api, id, callbackOk, callbackFail);
+  } else {
+    callbackFail("Invalid API Token!");
+  }
+}
+
+function searchAlbums(query, callbackOk, callbackFail) {
+  if (api != undefined && api != null) {
+    Album.Search(api, query, callbackOk, callbackFail);
+  } else {
+    callbackFail("Invalid API Token!");
+  }
+}
+
+function getArtistAlbums(id, callbackOk, callbackFail) {
+  if (api != undefined && api != null) {
+    Album.Artist(api, id, callbackOk, callbackFail);
+  } else {
+    callbackFail("Invalid API Token!");
+  }
+}
+
 function getApiToken(callbackOk, callbackFail) {
   const clientId = process.env.SPOTIFY_CLIENT_ID,
     clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 
   const spotifyApi = new SpotifyWebApi({
     clientId: clientId,
-    clientSecret: clientSecret
+    clientSecret: clientSecret,
   });
 
   spotifyApi.clientCredentialsGrant().then(
-    function(data) {
+    function (data) {
       //console.log("The access token expires in " + data.body["expires_in"]);
       console.log(data.body["access_token"]);
       spotifyApi.setAccessToken(data.body["access_token"]);
       callbackOk(spotifyApi);
     },
-    function(err) {
+    function (err) {
       callbackFail(`Ocorreu algum erro ao tentar pegar o token! Erro: ${err}`);
     }
   );
@@ -92,9 +118,12 @@ function getApiToken(callbackOk, callbackFail) {
 
 module.exports = {
   init,
-  getPlaylistImage,
   getPlaylistName,
   getPlaylistsUser,
   getPlaylistTracks,
-  getPlaylist
+  getPlaylist,
+  getAlbum,
+  getAlbumTracks,
+  searchAlbums,
+  getArtistAlbums,
 };
