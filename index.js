@@ -6,8 +6,10 @@ const comandosBot = require("./comandos");
 
 const hosts = {
   "open.spotify.com": "Spotify",
-  "youtube.com": "Youtube",
+  "www.youtube.com": "Youtube",
+  "m.youtube.com": "Youtube",
 };
+
 const TOKEN_DISCORD = process.env.TOKEN_DISCORD;
 
 Object.keys(comandosBot).map((key) => {
@@ -32,7 +34,7 @@ bot.on("message", (msg) => {
 
       if (hosts[url.host] != "") {
         parts = {
-          host: url.host,
+          host: hosts[url.host],
           pathname: url.pathname,
           searchParams: url.searchParams,
           href: url.href,

@@ -17,7 +17,7 @@ function Tracks(api, id, ok, fail) {
 function Search(api, query, ok, fail) {
   api
     .searchAlbums(query)
-    .then((data) => ok(data.body))
+    .then((data) => ok(data.body.albums))
     .catch((error) => fail(error));
 }
 

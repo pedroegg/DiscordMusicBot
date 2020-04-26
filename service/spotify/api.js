@@ -8,86 +8,31 @@
 
 const Playlist = require("./playlist/playlist");
 const Album = require("./album/album");
+const Track = require("./track/track");
+const Artist = require("./artist/artist");
+
 const SpotifyWebApi = require("spotify-web-api-node");
-var api = undefined;
 
-function init(callback) {
-  if (api == undefined || api == null) {
-    console.log("GetToken");
-    getApiToken(
-      function (obj) {
-        api = obj;
-        callback();
-      },
-      (err) => console.log(err)
-    );
-  } else {
-    callbackFail("Invalid API Token!");
-  }
-}
+const Functions = {
+  playlistsUser: Playlist.User,
+  playlistTracks: Playlist.Tracks,
+  playlist: Playlist.Playlist,
+  album: Album.Album,
+  albumTracks: Album.Tracks,
+  albums: Album.Search,
+  artistAlbums: Album.Artist,
+  track: Track.Track,
+  tracks: Track.Search,
+  artist: Artist.Artist,
+  relatedArtists: Artist.RelatedArtists,
+  artistTopTracks: Artist.TopTracks,
+  artists: Artist.Search,
+};
 
-function getPlaylistName(id, callbackOk, callbackFail) {
-  if (api != undefined && api != null) {
-    Playlist.Name(api, id, callbackOk, callbackFail);
-  } else {
-    callbackFail("Invalid API Token!");
-  }
-}
-
-function getPlaylistsUser(id, callbackOk, callbackFail) {
-  if (api != undefined && api != null) {
-    Playlist.User(api, id, callbackOk, callbackFail);
-  } else {
-    callbackFail("Invalid API Token!");
-  }
-}
-
-function getPlaylistTracks(id, callbackOk, callbackFail) {
-  if (api != undefined && api != null) {
-    Playlist.Tracks(api, id, callbackOk, callbackFail);
-  } else {
-    callbackFail("Invalid API Token!");
-  }
-}
-
-function getPlaylist(id, callbackOk, callbackFail) {
-  if (api != undefined && api != null) {
-    Playlist.Playlist(api, id, callbackOk, callbackFail);
-  } else {
-    callbackFail("Invalid API Token!");
-  }
-}
-
-function getAlbum(id, callbackOk, callbackFail) {
-  if (api != undefined && api != null) {
-    Album.Album(api, id, callbackOk, callbackFail);
-  } else {
-    callbackFail("Invalid API Token!");
-  }
-}
-
-function getAlbumTracks(id, callbackOk, callbackFail) {
-  if (api != undefined && api != null) {
-    Album.Tracks(api, id, callbackOk, callbackFail);
-  } else {
-    callbackFail("Invalid API Token!");
-  }
-}
-
-function searchAlbums(query, callbackOk, callbackFail) {
-  if (api != undefined && api != null) {
-    Album.Search(api, query, callbackOk, callbackFail);
-  } else {
-    callbackFail("Invalid API Token!");
-  }
-}
-
-function getArtistAlbums(id, callbackOk, callbackFail) {
-  if (api != undefined && api != null) {
-    Album.Artist(api, id, callbackOk, callbackFail);
-  } else {
-    callbackFail("Invalid API Token!");
-  }
+function Get(funct, param, callbackOk, callbackFail) {
+  getApiToken(function (api) {
+    funct(api, param, callbackOk, callbackFail);
+  }, callbackFail);
 }
 
 function getApiToken(callbackOk, callbackFail) {
@@ -112,18 +57,7 @@ function getApiToken(callbackOk, callbackFail) {
   );
 }
 
-/*export default {
-    init
-}*/
-
 module.exports = {
-  init,
-  getPlaylistName,
-  getPlaylistsUser,
-  getPlaylistTracks,
-  getPlaylist,
-  getAlbum,
-  getAlbumTracks,
-  searchAlbums,
-  getArtistAlbums,
+  Get,
+  Functions,
 };
