@@ -11,9 +11,10 @@
     "discord.js": "^12.1.1",
     "dotenv": "^8.2.0",
     "ffmpeg-static": "^4.1.0",
-    "opusscript": "0.0.7",
-    "ytdl-core": "^2.0.1",
     "node-fetch": "^2.6.0",
-    "spotify-web-api-node": "^4.0.0"
+    "opusscript": "0.0.7",
+    "spotify-web-api-node": "^4.0.0",
+    "valid-url": "^1.0.9",
+    "ytdl-core": "^2.0.1"
   }
 }

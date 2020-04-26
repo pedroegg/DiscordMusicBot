@@ -44,4 +44,5 @@ function getVideoName(data) {
 module.exports = {
   search,
   getVideoId,
+  getVideoName,
 };
