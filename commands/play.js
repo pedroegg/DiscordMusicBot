@@ -2,13 +2,14 @@ const ytdl = require("ytdl-core");
 const youtube = require("../service/youtube/youtube");
 
 function playAudio(msg, videoId) {
-  vc = msg.member.voice.channel;
+  let voiceChannel = msg.member.voice.channel;
 
-  if (!vc) {
+  if (!voiceChannel) {
     return msg.reply("You are not on a channel!");
   }
 
-  vc.join()
+  voiceChannel
+    .join()
     .then((connection) => {
       stream = ytdl("https://www.youtube.com/watch?v=" + videoId, {
         filter: "audioonly",
@@ -16,7 +17,7 @@ function playAudio(msg, videoId) {
 
       dispatcher = connection.play(stream);
     })
-    .catch(console.error);
+    .catch((err) => console.error(err));
 }
 
 function play(parts, msg, args, commandName) {

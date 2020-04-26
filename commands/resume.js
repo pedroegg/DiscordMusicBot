@@ -1,11 +1,12 @@
 function resume(msg) {
-  vc = msg.member.voice.channel;
+  let voiceChannel = msg.member.voice.channel;
 
-  if (!vc) {
+  if (!voiceChannel) {
     return msg.reply("You are not on a channel!");
   }
 
-  vc.join()
+  voiceChannel
+    .join()
     .then((connection) => {
       connection.dispatcher.resume();
     })

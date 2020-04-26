@@ -2,7 +2,7 @@ require("dotenv").config();
 const Discord = require("discord.js");
 const bot = new Discord.Client();
 bot.commands = new Discord.Collection();
-const comandosBot = require("./commands");
+const botCommands = require("./commands");
 const validUrl = require("valid-url");
 
 const hosts = {
@@ -13,8 +13,8 @@ const hosts = {
 };
 const TOKEN_DISCORD = process.env.TOKEN_DISCORD;
 
-Object.keys(comandosBot).map((key) => {
-  bot.commands.set(comandosBot[key].name, comandosBot[key]);
+Object.keys(botCommands).map((key) => {
+  bot.commands.set(botCommands[key].name, botCommands[key]);
 });
 
 bot.login(TOKEN_DISCORD);

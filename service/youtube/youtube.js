@@ -1,11 +1,7 @@
 const fetch = require("node-fetch");
 
 function search(query, data) {
-  let linkYoutubeApi =
-    "https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&q=" +
-    query +
-    "&key=" +
-    process.env.YOUTUBE_TOKEN;
+  let linkYoutubeApi = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1&q=${query}&key=${process.env.YOUTUBE_TOKEN}`;
 
   fetch(linkYoutubeApi)
     .then((response) => {
