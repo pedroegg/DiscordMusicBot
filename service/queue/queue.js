@@ -1,6 +1,8 @@
 const Queue = require("sync-queue");
 
 var queue = null;
+var currentDispatcher = null;
+var currentConnection = null;
 
 function Add(playSongFunc) {
   if (queue == null) {
@@ -33,6 +35,36 @@ function Length() {
   return queue.length;
 }
 
+function IsActive() {
+  return queue.active;
+}
+
+function setActive(val) {
+  if (typeof val == "boolean") {
+    queue.active = val;
+  }
+}
+
+function setCurrentDispatcher(dispatcher) {
+  if (dispatcher) {
+    currentDispatcher = dispatcher;
+  }
+}
+
+function getCurrentDispatcher() {
+  return currentDispatcher;
+}
+
+function setCurrentConnection(connection) {
+  if (connection) {
+    currentConnection = connection;
+  }
+}
+
+function getCurrentConnection() {
+  return currentConnection;
+}
+
 function Print() {
   if (queue != null && queue.active && queue.length > 0) {
     let message = "```Queue:\n\n";
@@ -59,4 +91,10 @@ module.exports = {
   JumpTo,
   Length,
   Print,
+  IsActive,
+  setActive,
+  setCurrentDispatcher,
+  getCurrentDispatcher,
+  setCurrentConnection,
+  getCurrentConnection,
 };

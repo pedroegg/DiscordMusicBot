@@ -4,4 +4,5 @@ module.exports = {
   Resume: require("./resume"),
   Stop: require("./stop"),
   Spotify: require("./spotify"),
+  Skip: require("./skip"),
 };

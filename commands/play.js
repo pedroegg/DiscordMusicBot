@@ -58,7 +58,9 @@ function youtubeNameHandler(musicName, msg) {
           `:musical_note: Now playing: ${youtube.getVideoName(data)} :fire:`
         );
 
-        observeDispatcher(dispatcher, connection, msg);
+        Queue.setCurrentDispatcher(dispatcher);
+        Queue.setCurrentConnection(connection);
+        observeDispatcher(msg);
       },
       function (err) {
         msg.reply("Error: Music play failed!");
@@ -78,7 +80,9 @@ function youtubeLinkHandler(msg, args) {
         function (title) {
           msg.reply(`:musical_note: Now playing: ${title} :fire:`);
 
-          observeDispatcher(dispatcher, connection, msg);
+          Queue.setCurrentDispatcher(dispatcher);
+          Queue.setCurrentConnection(connection);
+          observeDispatcher(msg);
         },
         function (err) {
           msg.reply("Error: Unable to get information about the track");
@@ -160,17 +164,18 @@ function spotifyAddMusicsPlaylist(data, msg, callback) {
   callback(nameList + "```");
 }
 
-function observeDispatcher(dispatcher, connection, msg) {
-  dispatcher.on("finish", () => {
+function observeDispatcher(msg) {
+  Queue.getCurrentDispatcher().on("finish", () => {
     //console.log("End music");
-    Queue.Skip((err) => msg.reply(err));
-
-    if (Queue.Length == 0) {
-      connection.disconnect();
+    if (Queue.Length() == 0) {
+      Queue.getCurrentConnection().disconnect();
+      return Queue.setActive(false);
     }
+
+    Queue.Skip((err) => msg.reply(err));
   });
 
-  dispatcher.on("error", (e) => {
+  Queue.getCurrentDispatcher().on("error", (e) => {
     console.error(e);
   });
 }
