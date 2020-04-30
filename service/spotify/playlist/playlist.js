@@ -17,7 +17,7 @@ function Tracks(api, id, ok, fail) {
 function Playlist(api, id, ok, fail) {
   api
     .getPlaylist(id)
-    .then(({ body }) => ok(body))
+    .then(({ body }) => ok(body.tracks.items))
     .catch((error) => fail(error));
 }
 

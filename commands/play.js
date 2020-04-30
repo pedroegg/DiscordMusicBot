@@ -144,10 +144,10 @@ function playAudio(msg, videoId, callbackOk, callbackFail) {
 }
 
 function spotifyAddMusicsPlaylist(data, msg, callback) {
-  let nameList = "```\nAdded musics in the playlist '" + data.name + "':\n\n";
+  //let nameList = "```\nAdded musics in the playlist '" + data.name + "':\n\n";
 
-  data.tracks.items.forEach(function (element, i) {
-    nameList += `${i} - ${element.track.name} - ${element.track.artists[0].name}\n`;
+  data.forEach(function (element, i) {
+    //nameList += `${i} - ${element.track.name} - ${element.track.artists[0].name}\n`;
 
     Queue.Add(function () {
       youtubeNameHandler(
@@ -157,7 +157,7 @@ function spotifyAddMusicsPlaylist(data, msg, callback) {
     });
   });
 
-  callback(nameList + "```");
+  callback("Added " + data.length + " musics to the queue!:thumbsup:");
 }
 
 function observeDispatcher(msg) {

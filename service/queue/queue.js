@@ -19,12 +19,25 @@ function Clear() {}
 
 function Loop() {}
 
+function Shuffle(callbackFail) {
+  if (queue && queue.active && queue.length > 0) {
+    for (var i = queue.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var temp = queue[i];
+      queue[i] = queue[j];
+      queue[j] = temp;
+    }
+  } else {
+    callbackFail();
+  }
+}
+
 function Skip(callbackFail) {
   if (queue && queue.active) {
     return queue.next();
   }
 
-  callbackFail("Error: Empty queue!");
+  callbackFail("Empty queue!");
 }
 
 function Back() {}
@@ -32,11 +45,19 @@ function Back() {}
 function JumpTo() {}
 
 function Length() {
-  return queue.length;
+  if (queue) {
+    return queue.length;
+  }
+
+  return 0;
 }
 
 function IsActive() {
-  return queue.active;
+  if (queue) {
+    return queue.active;
+  }
+
+  return false;
 }
 
 function setActive(val) {
@@ -86,6 +107,7 @@ module.exports = {
   Remove,
   Clear,
   Loop,
+  Shuffle,
   Skip,
   Back,
   JumpTo,

@@ -5,4 +5,6 @@ module.exports = {
   Stop: require("./stop"),
   Spotify: require("./spotify"),
   Skip: require("./skip"),
+  Shuffle: require("./shuffle"),
+  Length: require("./length"),
 };
