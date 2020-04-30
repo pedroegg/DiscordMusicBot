@@ -11,6 +11,7 @@ const hosts = {
   "www.youtube.com": "Youtube",
   "m.youtube.com": "Youtube",
 };
+
 const TOKEN_DISCORD = process.env.TOKEN_DISCORD;
 
 Object.keys(botCommands).map((key) => {

@@ -1,12 +1,5 @@
 //TODO: No método Playlist, serializar o json transformando em uma struct
 
-function Name(api, id, ok, fail) {
-  api
-    .getPlaylist(id)
-    .then((data) => ok(data.body.name))
-    .catch((error) => fail(error));
-}
-
 function User(api, id, ok, fail) {
   api
     .getUserPlaylists(id)
@@ -28,9 +21,16 @@ function Playlist(api, id, ok, fail) {
     .catch((error) => fail(error));
 }
 
+function Search(api, query, ok, fail) {
+  api
+    .getSearchPlaylists(query)
+    .then((data) => ok(data.body.playlists))
+    .catch((error) => fail(error));
+}
+
 module.exports = {
   Playlist,
-  Name,
   User,
   Tracks,
+  Search,
 };
