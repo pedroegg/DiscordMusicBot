@@ -184,42 +184,6 @@ function youtubeNameFromLink(link, callbackOk, callbackFail) {
   });
 }
 
-function spotifyPlaylistHandler(msg, playlistID) {
-  spotify.Get(
-    spotifyFunctions.playlist,
-    playlistID,
-    (data) => spotifyRetrieveMusicNamesMessage(data, (list) => msg.reply(list)),
-    (err) => console.log(err)
-  );
-}
-
-function spotifyTrackHandler(msg, trackID) {
-  spotify.Get(
-    spotifyFunctions.track,
-    trackID,
-    (data) => {
-      youtube.search(`${data.name} ${data.artists[0].name}`, (music) => {
-        msg.reply(
-          `:musical_note: Now playing: ${data.name} - ${data.artists[0].name} :fire:`
-        );
-
-        playAudio(msg, youtube.getVideoId(music));
-      });
-    },
-    (err) => console.log(err)
-  );
-}
-
-function spotifyRetrieveMusicNamesMessage(data, callback) {
-  var nameList = "```\nMusics in the playlist '" + data.name + "':\n\n";
-
-  data.tracks.items.forEach(function (element, i) {
-    nameList += `${i} - ${element.track.name} - ${element.track.artists[0].name}\n`;
-  });
-
-  callback(nameList + "```");
-}
-
 module.exports = {
   name: process.env.PREFIX + "play",
   description: "Play music",
