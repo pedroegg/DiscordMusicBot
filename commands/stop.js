@@ -1,5 +1,5 @@
 function stop(msg) {
-  let voiceChannel = msg.member.voice.channel;
+  const voiceChannel = msg.member.voice.channel;
 
   if (!voiceChannel) {
     return msg.reply("You are not on a channel!");

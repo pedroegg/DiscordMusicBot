@@ -1,11 +1,11 @@
 const Queue = require("sync-queue");
 
-var queue = null;
-var currentDispatcher = null;
-var currentConnection = null;
+let queue = null;
+let currentDispatcher = null;
+let currentConnection = null;
 
 function Add(playSongFunc) {
-  if (queue == null) {
+  if (!queue) {
     queue = new Queue();
     console.log("New Queue");
   }
@@ -20,7 +20,7 @@ function Clear() {}
 function Loop() {}
 
 function Skip(callbackFail) {
-  if (queue != null && queue.active) {
+  if (queue && queue.active) {
     return queue.next();
   }
 
@@ -66,7 +66,7 @@ function getCurrentConnection() {
 }
 
 function Print() {
-  if (queue != null && queue.active && queue.length > 0) {
+  if (queue && queue.active && queue.length > 0) {
     let message = "```Queue:\n\n";
 
     queue.forEach(function (element, i) {

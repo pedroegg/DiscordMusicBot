@@ -6,7 +6,7 @@ const Queue = require("../service/queue/queue");
 
 function play(parts, msg, args, commandName) {
   if (!parts) {
-    let music = msg.content.replace(commandName, "");
+    const music = msg.content.replace(commandName, "");
 
     Queue.Add(function () {
       youtubeNameHandler(music, msg);
@@ -17,7 +17,7 @@ function play(parts, msg, args, commandName) {
     );
   }
 
-  if (parts.host == "Youtube") {
+  if (parts.host === "Youtube") {
     Queue.Add(function () {
       youtubeLinkHandler(msg, args);
     });
@@ -25,26 +25,22 @@ function play(parts, msg, args, commandName) {
     return youtubeNameFromLink(
       args[0],
       (title) => msg.reply(`Music '${title}' added to the Queue!`),
-      function (err) {
+      (err) => {
         msg.reply("Error: Unable to get information about the track");
         console.error(err);
       }
     );
   }
 
-  if (parts.host == "Spotify") {
-    let arrayPathname = parts.pathname.split("/");
+  if (parts.host === "Spotify") {
+    const option = parts.pathname.split("/");
 
-    if (arrayPathname[1] == "playlist") {
-      return spotifyPlaylistHandler(msg, arrayPathname[2]);
-    }
-    if (arrayPathname[1] == "track") {
-      return spotifyTrackHandler(msg, arrayPathname[2]);
-    }
-    if (arrayPathname[1] == "artist") {
-    }
-    if (arrayPathname[1] == "album") {
-    }
+    const spotifyHandlers = {
+      playlist: spotifyPlaylistHandler,
+      track: spotifyTrackHandler,
+    };
+
+    return spotifyHandlers[option[1]](msg, option[2]);
   }
 }
 
@@ -53,7 +49,7 @@ function youtubeNameHandler(musicName, msg) {
     playAudio(
       msg,
       youtube.getVideoId(data),
-      function (dispatcher, connection) {
+      (dispatcher, connection) => {
         msg.reply(
           `:musical_note: Now playing: ${youtube.getVideoName(data)} :fire:`
         );
@@ -62,7 +58,7 @@ function youtubeNameHandler(musicName, msg) {
         Queue.setCurrentConnection(connection);
         observeDispatcher(msg);
       },
-      function (err) {
+      (err) => {
         msg.reply("Error: Music play failed!");
         console.error(err);
       }
@@ -74,23 +70,23 @@ function youtubeLinkHandler(msg, args) {
   playAudio(
     msg,
     ytdl.getURLVideoID(args[0]),
-    function (dispatcher, connection) {
+    (dispatcher, connection) => {
       youtubeNameFromLink(
         args[0],
-        function (title) {
+        (title) => {
           msg.reply(`:musical_note: Now playing: ${title} :fire:`);
 
           Queue.setCurrentDispatcher(dispatcher);
           Queue.setCurrentConnection(connection);
           observeDispatcher(msg);
         },
-        function (err) {
+        (err) => {
           msg.reply("Error: Unable to get information about the track");
           console.error(err);
         }
       );
     },
-    function (err) {
+    (err) => {
       msg.reply("Error: Music play failed!");
       console.error(err);
     }
@@ -101,7 +97,7 @@ function spotifyPlaylistHandler(msg, playlistID) {
   spotify.Get(
     spotifyFunctions.playlist,
     playlistID,
-    function (data) {
+    (data) => {
       spotifyAddMusicsPlaylist(data, msg, (list) => msg.reply(list));
     },
     (err) => console.log(err)
@@ -112,8 +108,8 @@ function spotifyTrackHandler(msg, trackID) {
   spotify.Get(
     spotifyFunctions.track,
     trackID,
-    function (data) {
-      let music = `${data.name} ${data.artists[0].name}`;
+    (data) => {
+      const music = `${data.name} ${data.artists[0].name}`;
 
       Queue.Add(function () {
         youtubeNameHandler(music, msg);
@@ -128,7 +124,7 @@ function spotifyTrackHandler(msg, trackID) {
 }
 
 function playAudio(msg, videoId, callbackOk, callbackFail) {
-  let voiceChannel = msg.member.voice.channel;
+  const voiceChannel = msg.member.voice.channel;
 
   if (!voiceChannel) {
     callbackFail("You are not on a channel!");
@@ -148,7 +144,7 @@ function playAudio(msg, videoId, callbackOk, callbackFail) {
 }
 
 function spotifyAddMusicsPlaylist(data, msg, callback) {
-  var nameList = "```\nAdded musics in the playlist '" + data.name + "':\n\n";
+  let nameList = "```\nAdded musics in the playlist '" + data.name + "':\n\n";
 
   data.tracks.items.forEach(function (element, i) {
     nameList += `${i} - ${element.track.name} - ${element.track.artists[0].name}\n`;
@@ -166,23 +162,21 @@ function spotifyAddMusicsPlaylist(data, msg, callback) {
 
 function observeDispatcher(msg) {
   Queue.getCurrentDispatcher().on("finish", () => {
-    //console.log("End music");
     if (Queue.Length() == 0) {
       Queue.getCurrentConnection().disconnect();
+
       return Queue.setActive(false);
     }
 
     Queue.Skip((err) => msg.reply(err));
   });
 
-  Queue.getCurrentDispatcher().on("error", (e) => {
-    console.error(e);
-  });
+  Queue.getCurrentDispatcher().on("error", (e) => console.error(e));
 }
 
 function youtubeNameFromLink(link, callbackOk, callbackFail) {
-  ytdl.getBasicInfo(link, function (err, info) {
-    if (err != null) {
+  ytdl.getBasicInfo(link, (err, info) => {
+    if (err) {
       callbackFail(err);
     }
 
@@ -203,11 +197,12 @@ function spotifyTrackHandler(msg, trackID) {
   spotify.Get(
     spotifyFunctions.track,
     trackID,
-    function (data) {
-      youtube.search(`${data.name} ${data.artists[0].name}`, function (music) {
+    (data) => {
+      youtube.search(`${data.name} ${data.artists[0].name}`, (music) => {
         msg.reply(
           `:musical_note: Now playing: ${data.name} - ${data.artists[0].name} :fire:`
         );
+
         playAudio(msg, youtube.getVideoId(music));
       });
     },

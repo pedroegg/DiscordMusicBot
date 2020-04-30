@@ -3,28 +3,28 @@
 function Album(api, id, ok, fail) {
   api
     .getAlbum(id)
-    .then((data) => ok(data.body))
+    .then(({ body }) => ok(body))
     .catch((error) => fail(error));
 }
 
 function Tracks(api, id, ok, fail) {
   api
     .getAlbumTracks(id)
-    .then((data) => ok(data.body.items))
+    .then(({ body }) => ok(body.items))
     .catch((error) => fail(error));
 }
 
 function Search(api, query, ok, fail) {
   api
     .searchAlbums(query)
-    .then((data) => ok(data.body.albums))
+    .then(({ body }) => ok(body.albums))
     .catch((error) => fail(error));
 }
 
 function Artist(api, id, ok, fail) {
   api
     .getArtistAlbums(id)
-    .then((data) => ok(data.body))
+    .then(({ body }) => ok(body))
     .catch((error) => fail(error));
 }
 
