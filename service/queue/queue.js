@@ -22,8 +22,8 @@ function Loop() {}
 function Shuffle(callbackFail) {
   if (queue && queue.active && queue.length > 0) {
     for (var i = queue.length - 1; i > 0; i--) {
-      var j = Math.floor(Math.random() * (i + 1));
-      var temp = queue[i];
+      let j = Math.floor(Math.random() * (i + 1));
+      let temp = queue[i];
       queue[i] = queue[j];
       queue[j] = temp;
     }
