@@ -7,4 +7,5 @@ module.exports = {
   Skip: require("./skip"),
   Shuffle: require("./shuffle"),
   Length: require("./length"),
+  Loop: require("./loop"),
 };

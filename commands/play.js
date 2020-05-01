@@ -164,14 +164,15 @@ function observeDispatcher(msg) {
   Queue.getCurrentDispatcher().on("finish", () => {
     if (Queue.Length() == 0) {
       Queue.getCurrentConnection().disconnect();
-
-      return Queue.setActive(false);
+      Queue.Clear();
     }
 
     Queue.Skip((err) => msg.reply(err));
   });
 
-  Queue.getCurrentDispatcher().on("error", (e) => console.error(e));
+  Queue.getCurrentDispatcher().on("error", (e) => {
+    console.error("Erro no Dispatcher: " + e);
+  });
 }
 
 function youtubeNameFromLink(link, callbackOk, callbackFail) {

@@ -1,12 +1,19 @@
-const Queue = require("sync-queue");
+const Queue = require("../../lib/queue/queue");
 
 let queue = null;
 let currentDispatcher = null;
 let currentConnection = null;
+let startLoop = false;
+let currentIndex = 0;
+
+const stateLoop = {
+  true: "enabled",
+  false: "disabled",
+};
 
 function Add(playSongFunc) {
   if (!queue) {
-    queue = new Queue();
+    queue = new Queue(startLoop);
     console.log("New Queue");
   }
 
@@ -15,9 +22,22 @@ function Add(playSongFunc) {
 
 function Remove() {}
 
-function Clear() {}
+function Clear() {
+  if (queue) {
+    queue.clear();
+  }
+}
 
-function Loop() {}
+function Loop() {
+  currentIndex = 0;
+  if (queue) {
+    queue.loop = !queue.loop;
+  } else {
+    startLoop = !startLoop;
+  }
+
+  return `Looping queue ${stateLoop[queue ? queue.loop : startLoop]}!`;
+}
 
 function Shuffle(callbackFail) {
   if (queue && queue.active && queue.length > 0) {
@@ -34,11 +54,17 @@ function Shuffle(callbackFail) {
 
 function Skip(callbackFail) {
   if (queue && queue.active) {
+    if (queue.loop) {
+      return queue.next(++currentIndex);
+    }
+
     return queue.next();
   }
 
   callbackFail("Empty queue!");
 }
+
+function SkipTo() {}
 
 function Back() {}
 
@@ -86,6 +112,21 @@ function getCurrentConnection() {
   return currentConnection;
 }
 
+function IsLoop() {
+  if (queue) {
+    return queue.loop;
+  }
+
+  return false;
+}
+
+function setLoop(val) {
+  if (queue && typeof val == "boolean") {
+    currentIndex = 0;
+    queue.loop = val;
+  }
+}
+
 function Print() {
   if (queue && queue.active && queue.length > 0) {
     let message = "```Queue:\n\n";
@@ -109,12 +150,15 @@ module.exports = {
   Loop,
   Shuffle,
   Skip,
+  SkipTo,
   Back,
   JumpTo,
   Length,
   Print,
   IsActive,
+  IsLoop,
   setActive,
+  setLoop,
   setCurrentDispatcher,
   getCurrentDispatcher,
   setCurrentConnection,
