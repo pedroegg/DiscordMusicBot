@@ -30,7 +30,7 @@ const Functions = {
 };
 
 function Get(funct, param, callbackOk, callbackFail) {
-  getApiToken(function (api) {
+  getApiToken((api) => {
     funct(api, param, callbackOk, callbackFail);
   }, callbackFail);
 }
@@ -45,13 +45,13 @@ function getApiToken(callbackOk, callbackFail) {
   });
 
   spotifyApi.clientCredentialsGrant().then(
-    function (data) {
+    (data) => {
       //console.log("The access token expires in " + data.body["expires_in"]);
       console.log(data.body["access_token"]);
       spotifyApi.setAccessToken(data.body["access_token"]);
       callbackOk(spotifyApi);
     },
-    function (err) {
+    (err) => {
       callbackFail(`Ocorreu algum erro ao tentar pegar o token! Erro: ${err}`);
     }
   );

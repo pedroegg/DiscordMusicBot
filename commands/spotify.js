@@ -6,19 +6,15 @@ module.exports = {
   name: process.env.PREFIX + "spotify",
   description: "Spotify Search and Play!",
   execute(msg, args, parts) {
-    if (parts != null) {
-      let arrayPathname = parts.pathname.split("/");
+    if (parts) {
+      const option = parts.pathname.split("/");
 
-      if (arrayPathname[1] == "playlist") {
-        playlistHandler(msg, arrayPathname[2]);
-      }
-      if (arrayPathname[1] == "track") {
-        trackHandler(msg, arrayPathname[2]);
-      }
-      if (arrayPathname[1] == "artist") {
-      }
-      if (arrayPathname[1] == "album") {
-      }
+      const spotifyHandlers = {
+        playlist: playlistHandler,
+        track: trackHandler,
+      };
+
+      return spotifyHandlers[option[1]](msg, option[2]);
     } else {
       //Implementar para buscar aqui playlists de um profile, dados, etc, pois talvez não vão ser links
       msg.reply("Error! Invalid Spotify link.");

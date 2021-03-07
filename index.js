@@ -49,7 +49,7 @@ function isUrl(args, callback) {
   if (validUrl.isUri(args[0])) {
     const url = new URL(args[0]);
 
-    if (hosts[url.host] != "") {
+    if (hosts[url.host]) {
       parts = {
         host: hosts[url.host],
         pathname: url.pathname,
