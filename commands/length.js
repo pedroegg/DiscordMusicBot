@@ -1,17 +1,17 @@
 const Queue = require("../service/queue/queue");
 
-function Length(msg) {
+function Length(chatChannel) {
   if (Queue.IsActive()) {
-    return msg.reply(Queue.Length());
+    return chatChannel.send(Queue.Length());
   }
 
-  msg.reply("Empty Queue!");
+  chatChannel.send("Empty Queue!");
 }
 
 module.exports = {
   name: process.env.PREFIX + "length",
   description: "Return the length of the queue",
-  execute(msg, args, parts) {
-    Length(msg);
+  execute(query, voiceChannel, chatChannel, args, parts) {
+    Length(chatChannel);
   },
 };

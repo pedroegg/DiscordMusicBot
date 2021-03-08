@@ -26,6 +26,12 @@ function Clear() {
   if (queue) {
     queue.clear();
   }
+
+  queue = null;
+  currentConnection = null;
+  currentDispatcher = null;
+  startLoop = false;
+  currentIndex = 0;
 }
 
 function Loop() {
@@ -58,7 +64,7 @@ function Skip(callbackFail) {
       return queue.next(++currentIndex);
     }
 
-    return queue.next();
+    return queue.next(null);
   }
 
   callbackFail("Empty queue!");

@@ -2,36 +2,20 @@ require("dotenv").config();
 const api = require("../service/spotify/api");
 const apiFunctions = require("../service/spotify/api").Functions;
 
-module.exports = {
-  name: process.env.PREFIX + "spotify",
-  description: "Spotify Search and Play!",
-  execute(msg, args, parts) {
-    if (parts) {
-      const option = parts.pathname.split("/");
-
-      const spotifyHandlers = {
-        playlist: playlistHandler,
-        track: trackHandler,
-      };
-
-      return spotifyHandlers[option[1]](msg, option[2]);
-    } else {
-      //Implementar para buscar aqui playlists de um profile, dados, etc, pois talvez não vão ser links
-      msg.reply("Error! Invalid Spotify link.");
-    }
-  },
-};
-
-function playlistHandler(msg, playlistID) {
+function playlistHandler(chatChannel, playlistID) {
   api.Get(
     apiFunctions.playlist,
     playlistID,
-    (data) => retrieveMusicNamesMessage(data, (list) => msg.reply(list)),
-    (err) => console.log(err)
+    (data) => retrieveMusicNamesMessage(data, (list) => chatChannel.send(list)),
+    (err) => {
+      chatChannel.send("Error: Unable to get information about the playlist");
+
+      console.log(err);
+    },
   );
 }
 
-function trackHandler(msg, trackID) {
+function trackHandler(chatChannel, trackID) {
   api.Get(
     apiFunctions.track,
     trackID,
@@ -49,3 +33,23 @@ function retrieveMusicNamesMessage(data, callback) {
 
   callback(nameList + "```");
 }
+
+module.exports = {
+  name: process.env.PREFIX + "spotify",
+  description: "Spotify Search and Play!",
+  execute(query, voiceChannel, chatChannel, args, parts) {
+    if (parts) {
+      const option = parts.pathname.split("/");
+
+      const spotifyHandlers = {
+        playlist: playlistHandler,
+        track: trackHandler,
+      };
+
+      return spotifyHandlers[option[1]](chatChannel, option[2]);
+    } else {
+      //Implementar para buscar aqui playlists de um profile, dados, etc, pois talvez não vão ser links
+      chatChannel.send("Error! Invalid Spotify link.");
+    }
+  },
+};
