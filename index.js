@@ -14,6 +14,17 @@ const hosts = {
   "m.youtube.com": "Youtube",
 };
 
+function Channel(chan, acceptReply) {
+  this.acceptReply = acceptReply;
+  this.send = function(message) {
+    if (this.acceptReply) {
+      return chan.reply(message);
+    }
+
+    return chan.send(message);
+  }
+}
+
 const TOKEN_DISCORD = process.env.TOKEN_DISCORD;
 
 var EggersServerID = null;
@@ -52,9 +63,9 @@ bot.on("ready", () => {
 bot.on("message", (msg) => {
   const args = msg.content.split(/ +/);
   const command = args.shift().toLowerCase();
-  const voiceChannel = msg.member.voice.channel;
-  const chatChannel = msg;
   const query = msg.content.replace(command, "");
+  const voiceChannel = msg.member.voice.channel;
+  const chatChannel = new Channel(msg, true);
 
   if (!bot.commands.has(command)) return;
 
@@ -126,7 +137,7 @@ app.post('/search', (req, res) => {
   }
 
   try {
-    bot.commands.get('?play').execute(req.query.q, EggVoiceChannel, EggersBotChannel, null, null);
+    bot.commands.get('?play').execute(req.query.q, EggVoiceChannel, new Channel(EggersBotChannel, false), null, null);
   } 
   catch (error) {
     EggersBotChannel.send('Something went wrong! :(');
@@ -139,4 +150,4 @@ app.post('/search', (req, res) => {
   });
 });
 
-app.listen(3000, () => console.log('App na porta 3000'));
+app.listen(3000, () => console.log('API -> Port 3000'));
