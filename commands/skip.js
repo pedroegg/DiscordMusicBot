@@ -1,21 +1,23 @@
 const Queue = require("../service/queue/queue");
 
-function skip(msg) {
+function skip(chatChannel) {
   if (Queue.IsActive()) {
     if (Queue.Length() == 0) {
-      return Queue.getCurrentDispatcher().end();
+      Queue.getCurrentDispatcher().end();
+      Queue.getCurrentConnection().disconnect();
+      return Queue.Clear();
     }
 
-    return Queue.Skip((err) => msg.reply(err));
+    return Queue.Skip((err) => chatChannel.send(err));
   }
 
-  msg.reply("Empty Queue!");
+  chatChannel.send("Empty Queue!");
 }
 
 module.exports = {
   name: process.env.PREFIX + "skip",
   description: "Skip music",
-  execute(msg, args, parts) {
-    skip(msg);
+  execute(query, voiceChannel, chatChannel, args, parts) {
+    skip(chatChannel);
   },
 };

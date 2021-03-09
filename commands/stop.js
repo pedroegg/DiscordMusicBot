@@ -1,8 +1,6 @@
-function stop(msg) {
-  const voiceChannel = msg.member.voice.channel;
-
+function stop(voiceChannel, chatChannel) {
   if (!voiceChannel) {
-    return msg.reply("You are not on a channel!");
+    return chatChannel.send("You are not on a channel!");
   }
 
   voiceChannel
@@ -16,7 +14,7 @@ function stop(msg) {
 module.exports = {
   name: process.env.PREFIX + "stop",
   description: "Stop music",
-  execute(msg, args, parts) {
-    stop(msg);
+  execute(query, voiceChannel, chatChannel, args, parts) {
+    stop(voiceChannel, chatChannel);
   },
 };

@@ -4,29 +4,35 @@ const spotify = require("../service/spotify/api");
 const spotifyFunctions = require("../service/spotify/api").Functions;
 const Queue = require("../service/queue/queue");
 
-function play(parts, msg, args, commandName) {
-  if (!parts) {
-    const music = msg.content.replace(commandName, "");
+function play(query, voiceChannel, chatChannel, args, parts) {
+  /*console.log("Entrou:");
+  console.log("query = " + query);
+  console.log("voiceChannel = " + voiceChannel);
+  console.log("chatChannel = " + chatChannel);
+  console.log("args = " + args);
+  console.log("parts = " + parts);*/
 
+  if (!parts) {
     Queue.Add(function () {
-      youtubeNameHandler(music, msg);
+      youtubeNameHandler(query, voiceChannel, chatChannel);
     });
 
-    return youtube.search(music, (data) =>
-      msg.reply(`Music '${youtube.getVideoName(data)}' added to the Queue!`)
-    );
+    return youtube.search(query, (data) => {
+      chatChannel.send(`Music '${youtube.getVideoName(data)}' added to the Queue!`);
+    });
   }
 
   if (parts.host === "Youtube") {
     Queue.Add(function () {
-      youtubeLinkHandler(msg, args);
+      youtubeLinkHandler(voiceChannel, chatChannel, args);
     });
 
     return youtubeNameFromLink(
       args[0],
-      (title) => msg.reply(`Music '${title}' added to the Queue!`),
+      (title) => chatChannel.send(`Music '${title}' added to the Queue!`),
       (err) => {
-        msg.reply("Error: Unable to get information about the track");
+        chatChannel.send("Error: Unable to get information about the track");
+
         console.error(err);
       }
     );
@@ -34,77 +40,82 @@ function play(parts, msg, args, commandName) {
 
   if (parts.host === "Spotify") {
     const option = parts.pathname.split("/");
-
+    
     const spotifyHandlers = {
       playlist: spotifyPlaylistHandler,
       track: spotifyTrackHandler,
     };
 
-    return spotifyHandlers[option[1]](msg, option[2]);
+    return spotifyHandlers[option[1]](voiceChannel, chatChannel, option[2]);
   }
 }
 
-function youtubeNameHandler(musicName, msg) {
-  youtube.search(musicName, (data) => {
+function youtubeNameHandler(query, voiceChannel, chatChannel) {
+  youtube.search(query, (data) => {
     playAudio(
-      msg,
+      voiceChannel,
       youtube.getVideoId(data),
       (dispatcher, connection) => {
-        msg.reply(
-          `:musical_note: Now playing: ${youtube.getVideoName(data)} :fire:`
-        );
+        chatChannel.send(`:musical_note: Now playing: ${youtube.getVideoName(data)} :fire:`);
 
         Queue.setCurrentDispatcher(dispatcher);
         Queue.setCurrentConnection(connection);
-        observeDispatcher(msg);
+        observeDispatcher(chatChannel);
       },
       (err) => {
-        msg.reply("Error: Music play failed!");
+        chatChannel.send("Error: Music play failed!");
+
         console.error(err);
       }
     );
   });
 }
 
-function youtubeLinkHandler(msg, args) {
+function youtubeLinkHandler(voiceChannel, chatChannel, args) {
   playAudio(
-    msg,
+    voiceChannel,
     ytdl.getURLVideoID(args[0]),
     (dispatcher, connection) => {
       youtubeNameFromLink(
         args[0],
         (title) => {
-          msg.reply(`:musical_note: Now playing: ${title} :fire:`);
+          chatChannel.send(`:musical_note: Now playing: ${title} :fire:`);
 
           Queue.setCurrentDispatcher(dispatcher);
           Queue.setCurrentConnection(connection);
-          observeDispatcher(msg);
+          observeDispatcher(chatChannel);
         },
         (err) => {
-          msg.reply("Error: Unable to get information about the track");
+          chatChannel.send("Error: Unable to get information about the track");
+
           console.error(err);
         }
       );
     },
     (err) => {
-      msg.reply("Error: Music play failed!");
+      chatChannel.send("Error: Music play failed!");
+
       console.error(err);
     }
   );
 }
 
-function spotifyPlaylistHandler(msg, playlistID) {
+function spotifyPlaylistHandler(voiceChannel, chatChannel, playlistID) {
   spotify.Get(
     spotifyFunctions.playlist,
     playlistID,
     (data) => {
-      spotifyAddMusicsPlaylist(data, msg, (list) => msg.reply(list));
+      spotifyAddMusicsPlaylist(data, voiceChannel, chatChannel, (list) => chatChannel.send(list));
     },
-    (err) => console.log(err)
+    (err) => {
+      chatChannel.send("Error: Unable to get information about the playlist");
+
+      console.log(err);
+    },
   );
 }
 
-function spotifyTrackHandler(msg, trackID) {
+function spotifyTrackHandler(voiceChannel, chatChannel, trackID) {
   spotify.Get(
     spotifyFunctions.track,
     trackID,
@@ -112,20 +123,20 @@ function spotifyTrackHandler(msg, trackID) {
       const music = `${data.name} ${data.artists[0].name}`;
 
       Queue.Add(function () {
-        youtubeNameHandler(music, msg);
+        youtubeNameHandler(music, voiceChannel, chatChannel);
       });
 
-      youtube.search(music, (dataYt) =>
-        msg.reply(`Music '${youtube.getVideoName(dataYt)}' added to the Queue!`)
-      );
+      youtube.search(music, (dataYt) => chatChannel.send(`Music '${youtube.getVideoName(dataYt)}' added to the Queue!`));
     },
-    (err) => console.log(err)
+    (err) => {
+      chatChannel.send("Error: Unable to get information about the track");
+
+      console.log(err);
+    },
   );
 }
 
-function playAudio(msg, videoId, callbackOk, callbackFail) {
-  const voiceChannel = msg.member.voice.channel;
-
+function playAudio(voiceChannel, videoId, callbackOk, callbackFail) {
   if (!voiceChannel) {
     callbackFail("You are not on a channel!");
   }
@@ -143,7 +154,7 @@ function playAudio(msg, videoId, callbackOk, callbackFail) {
     .catch((err) => callbackFail(err));
 }
 
-function spotifyAddMusicsPlaylist(data, msg, callback) {
+function spotifyAddMusicsPlaylist(data, voiceChannel, chatChannel, callback) {
   //let nameList = "```\nAdded musics in the playlist '" + data.name + "':\n\n";
 
   data.forEach(function (element, i) {
@@ -152,7 +163,8 @@ function spotifyAddMusicsPlaylist(data, msg, callback) {
     Queue.Add(function () {
       youtubeNameHandler(
         `${element.track.name} ${element.track.artists[0].name}`,
-        msg
+        voiceChannel,
+        chatChannel,
       );
     });
   });
@@ -160,14 +172,14 @@ function spotifyAddMusicsPlaylist(data, msg, callback) {
   callback("Added " + data.length + " musics to the queue!:thumbsup:");
 }
 
-function observeDispatcher(msg) {
+function observeDispatcher(chatChannel) {
   Queue.getCurrentDispatcher().on("finish", () => {
     if (Queue.Length() == 0) {
       Queue.getCurrentConnection().disconnect();
       Queue.Clear();
+    } else {
+      Queue.Skip((err) => chatChannel.send(err));
     }
-
-    Queue.Skip((err) => msg.reply(err));
   });
 
   Queue.getCurrentDispatcher().on("error", (e) => {
@@ -188,7 +200,7 @@ function youtubeNameFromLink(link, callbackOk, callbackFail) {
 module.exports = {
   name: process.env.PREFIX + "play",
   description: "Play music",
-  execute(msg, args, parts) {
-    play(parts, msg, args, this.name);
+  execute(query, voiceChannel, chatChannel, args, parts) {
+    play(query, voiceChannel, chatChannel, args, parts);
   },
 };

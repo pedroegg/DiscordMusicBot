@@ -1,8 +1,6 @@
-function resume(msg) {
-  const voiceChannel = msg.member.voice.channel;
-
+function resume(voiceChannel, chatChannel) {
   if (!voiceChannel) {
-    return msg.reply("You are not on a channel!");
+    return chatChannel.send("You are not on a channel!");
   }
 
   voiceChannel
@@ -16,7 +14,7 @@ function resume(msg) {
 module.exports = {
   name: process.env.PREFIX + "resume",
   description: "Resume music",
-  execute(msg, args, parts) {
-    resume(msg);
+  execute(query, voiceChannel, chatChannel, args, parts) {
+    resume(voiceChannel, chatChannel);
   },
 };
