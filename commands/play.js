@@ -5,13 +5,6 @@ const spotifyFunctions = require("../service/spotify/api").Functions;
 const Queue = require("../service/queue/queue");
 
 function play(query, voiceChannel, chatChannel, args, parts) {
-  /*console.log("Entrou:");
-  console.log("query = " + query);
-  console.log("voiceChannel = " + voiceChannel);
-  console.log("chatChannel = " + chatChannel);
-  console.log("args = " + args);
-  console.log("parts = " + parts);*/
-
   if (!parts) {
     Queue.Add(function () {
       youtubeNameHandler(query, voiceChannel, chatChannel);
