@@ -5,20 +5,15 @@ const spotifyFunctions = require("../service/spotify/api").Functions;
 const Queue = require("../service/queue/queue");
 
 function play(query, voiceChannel, chatChannel, args, parts) {
-  /*console.log("Entrou:");
-  console.log("query = " + query);
-  console.log("voiceChannel = " + voiceChannel);
-  console.log("chatChannel = " + chatChannel);
-  console.log("args = " + args);
-  console.log("parts = " + parts);*/
-
   if (!parts) {
     Queue.Add(function () {
       youtubeNameHandler(query, voiceChannel, chatChannel);
     });
 
+    // Fazer aqui e no handler de url para executar o youtube.search apenas uma vez
+
     return youtube.search(query, (data) => {
-      chatChannel.send(`Music '${youtube.getVideoName(data)}' added to the Queue!`);
+      chatChannel.send(`Music '${data.videoTitle}' added to the Queue!`);
     });
   }
 
@@ -27,15 +22,9 @@ function play(query, voiceChannel, chatChannel, args, parts) {
       youtubeLinkHandler(voiceChannel, chatChannel, args);
     });
 
-    return youtubeNameFromLink(
-      args[0],
-      (title) => chatChannel.send(`Music '${title}' added to the Queue!`),
-      (err) => {
-        chatChannel.send("Error: Unable to get information about the track");
-
-        console.error(err);
-      }
-    );
+    return youtube.searchByURL(args[0], (data) => {
+      chatChannel.send(`Music '${data.videoTitle}' added to the Queue!`);
+    });
   }
 
   if (parts.host === "Spotify") {
@@ -54,9 +43,9 @@ function youtubeNameHandler(query, voiceChannel, chatChannel) {
   youtube.search(query, (data) => {
     playAudio(
       voiceChannel,
-      youtube.getVideoId(data),
+      data.videoID,
       (dispatcher, connection) => {
-        chatChannel.send(`:musical_note: Now playing: ${youtube.getVideoName(data)} :fire:`);
+        chatChannel.send(`:musical_note: Now playing: ${data.videoTitle} :fire:`);
 
         Queue.setCurrentDispatcher(dispatcher);
         Queue.setCurrentConnection(connection);
@@ -72,32 +61,24 @@ function youtubeNameHandler(query, voiceChannel, chatChannel) {
 }
 
 function youtubeLinkHandler(voiceChannel, chatChannel, args) {
-  playAudio(
-    voiceChannel,
-    ytdl.getURLVideoID(args[0]),
-    (dispatcher, connection) => {
-      youtubeNameFromLink(
-        args[0],
-        (title) => {
-          chatChannel.send(`:musical_note: Now playing: ${title} :fire:`);
+  youtube.searchByURL(args[0], (data) => {
+    playAudio(
+      voiceChannel,
+      data.videoID,
+      (dispatcher, connection) => {
+        chatChannel.send(`:musical_note: Now playing: ${data.videoTitle} :fire:`);
 
-          Queue.setCurrentDispatcher(dispatcher);
-          Queue.setCurrentConnection(connection);
-          observeDispatcher(chatChannel);
-        },
-        (err) => {
-          chatChannel.send("Error: Unable to get information about the track");
+        Queue.setCurrentDispatcher(dispatcher);
+        Queue.setCurrentConnection(connection);
+        observeDispatcher(chatChannel);
+      },
+      (err) => {
+        chatChannel.send("Error: Music play failed!");
 
-          console.error(err);
-        }
-      );
-    },
-    (err) => {
-      chatChannel.send("Error: Music play failed!");
-
-      console.error(err);
-    }
-  );
+        console.error(err);
+      }
+    );
+  });
 }
 
 function spotifyPlaylistHandler(voiceChannel, chatChannel, playlistID) {
@@ -184,16 +165,6 @@ function observeDispatcher(chatChannel) {
 
   Queue.getCurrentDispatcher().on("error", (e) => {
     console.error("Erro no Dispatcher: " + e);
-  });
-}
-
-function youtubeNameFromLink(link, callbackOk, callbackFail) {
-  ytdl.getBasicInfo(link, (err, info) => {
-    if (err) {
-      callbackFail(err);
-    }
-
-    callbackOk(info.title);
   });
 }
 
