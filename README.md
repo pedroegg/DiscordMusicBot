@@ -1,4 +1,4 @@
-# Coeur De La Nuit discord bot
+# Discord bot
 
 # Setup:
 1. Create your discord bot in the discord developers portal. https://discord.com/developers/applications
